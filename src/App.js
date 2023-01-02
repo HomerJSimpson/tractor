@@ -1,49 +1,55 @@
 import "./App.css";
-import React, { useState } from "react";
+import React from "react";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
-import ButtonGroup from "@mui/material/ButtonGroup";
+import Grid from "@mui/material/Grid";
 import Typeography from "@mui/material/Typography";
+import { useImmer } from "use-immer";
+import Box from "@mui/material/Box";
+import { ReactComponent as LeafIcon } from "./image2vector.svg";
+import SvgIcon from "@mui/material/SvgIcon";
 
 function App() {
-  const [state, setState] = useState({ ctm: +new Date(), n: 5, clicked: "" });
-  const turn = function (e) {
-    const ns = { ...state };
-    ns.clicked += e.target.id;
-    setState(ns);
+  const [state, setState] = useImmer({ sessionStart: new Date(), rows: [] });
+  const turn = (e) => {
+    setState((draft) => {
+      draft.rows.push({ htm: new Date() });
+    });
   };
 
-  const reset = function (e) {
-    const ns = { ...state };
-    ns.clicked = "";
-    setState(ns);
-  };
   return (
     <Paper
       square
-      elevation={1}
+      elevation={0}
       sx={{
         p: 1,
         m: 0,
       }}
     >
       <Typeography variant="h3">Tractor</Typeography>
-      <Typeography variant="h5">{state.n}</Typeography>
-      <ButtonGroup orientation="vertical" size="large" fullWidth>
-        {new Array(state.n).fill().map((e, i) => (
-          <Button
-            disabled={state.clicked.indexOf(i) > -1}
-            variant="contained"
-            id={`turn-${i}`}
-            onClick={turn}
-            key={i}
-          >
-            Turn - {1 + i} {console.log(state)}
-          </Button>
-        ))}
-      </ButtonGroup>
-      <hr/>
-      <Button variant="outlined" onClick={reset}>RESET</Button>
+      <Typeography variant="body2">
+        {state.sessionStart.toISOString()}
+      </Typeography>
+      <Typeography variant="caption">
+        <Box sx={{ flexGrow: 1 }}>
+          <Grid container spacing={1}>
+          {state.rows.map((hit,i)=><Grid item key={i} xs={6}>{hit.htm.toISOString()}<SvgIcon sx={{color:"green"}}><LeafIcon/></SvgIcon></Grid>)}
+          </Grid>
+        </Box>
+      </Typeography>
+      <Button
+        variant="contained"
+        sx={{
+          width: "100%",
+          minHeight: 200,
+          position: "fixed",
+          bottom: 0,
+          left: 0, 
+        }}
+        onClick={turn}
+      >
+        Hit
+      </Button>
     </Paper>
   );
 }
